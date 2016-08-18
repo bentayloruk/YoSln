@@ -9,7 +9,7 @@ If you answered yes to all of the above *and* you are drunk, this may be the pro
 
 **This is a 0.1, which means it WORKS FOR ME AND MY NEED. Your mileage will probably vary.**
 
-This is a command line tool and is written in F#.  The works is done [here](https://github.com/bentayloruk/YoSln/blob/master/src/YoSln/Program.fs).
+This is a command line tool and is written in F#.  The work is done [here](https://github.com/bentayloruk/YoSln/blob/master/src/YoSln/Program.fs).
 
 *Really, still here?!*
 
