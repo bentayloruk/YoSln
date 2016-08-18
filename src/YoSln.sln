@@ -1,0 +1,27 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{9CD2BD23-BE40-43BF-8143-67DC522BA798}"
+	ProjectSection(SolutionItems) = preProject
+		NameProj\paket.references = NameProj\paket.references
+	EndProjectSection
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "YoSln", "YoSln\YoSln.fsproj", "{8CD037B7-8322-47AE-B2ED-6B51D40E5C1E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8CD037B7-8322-47AE-B2ED-6B51D40E5C1E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8CD037B7-8322-47AE-B2ED-6B51D40E5C1E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8CD037B7-8322-47AE-B2ED-6B51D40E5C1E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8CD037B7-8322-47AE-B2ED-6B51D40E5C1E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
