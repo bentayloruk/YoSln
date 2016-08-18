@@ -7,6 +7,7 @@ open System.Xml
 type MoveProjInput =
     { SrcProjFileInfo : FileInfo
       DestProjName : string
+      RenameFolder : bool
       SlnDir : DirectoryInfo }
 
 type ProjMoveInfo = ProjMoveInfo of srcPath:string * Guid * destPath:string
@@ -19,16 +20,18 @@ module Args =
     open Argu
 
     type private MoveProjArgs =
-        | [<Mandatory; Unique>] ProjPath of string
-        | [<Mandatory; Unique>] NewName of string
-        | SlnDir of string
+        | [<Mandatory; Unique; AltCommandLine("-pp", "--project-path")>] Proj_Path of string
+        | [<Mandatory; Unique; AltCommandLine("-nn")>] New_Name of string
+        | [<Unique; AltCommandLine("-sd", "--soludion-dir")>]Sln_Dir of string
+        | [<Unique; AltCommandLine("-drf")>] Dont_Rename_Folder
     with
         interface IArgParserTemplate with
             member x.Usage =
                 match x with
-                | ProjPath(_) -> "Relative or absolute path of project to rename." 
-                | NewName(_) -> "New name for project." 
-                | SlnDir(_) -> "Directory to recursively search in order to update project and solution references." 
+                | Proj_Path(_) -> "Relative or absolute path of project to rename." 
+                | New_Name(_) -> "New name for project." 
+                | Sln_Dir(_) -> "Directory to recursively search in order to update project and solution references." 
+                | Dont_Rename_Folder(_) -> "Flag to indicate that you don't want the project folder moved." 
 
     and private SlnToolArgs =
         | [<CliPrefix(CliPrefix.None)>] MoveProj of ParseResults<MoveProjArgs>
@@ -54,14 +57,15 @@ module Args =
     let processNewName arg = arg // TODO research project name limitations.
 
     let private processMoveProjArgs (results:ParseResults<MoveProjArgs>) =
-        let projPath = results.PostProcessResult(<@ ProjPath @>, processProjPath)
-        let newName = results.PostProcessResult(<@ NewName @>, processNewName)
+        let projPath = results.PostProcessResult(<@ Proj_Path @>, processProjPath)
+        let newName = results.PostProcessResult(<@ New_Name @>, processNewName)
         let slnDir = 
-            match results.TryPostProcessResult(<@ SlnDir @>, processSlnDir) with
+            match results.TryPostProcessResult(<@ Sln_Dir @>, processSlnDir) with
             | Some path -> path
             | None -> DirectoryInfo(Environment.CurrentDirectory)
         { SrcProjFileInfo = projPath
           DestProjName = newName
+          RenameFolder = not (results.Contains(<@ Dont_Rename_Folder@>))
           SlnDir = slnDir }
             
     let parseArgsOrThrow (args) =
@@ -120,8 +124,18 @@ let main argv =
 
         // Figure out info of projects that will move.
         let projMoveInfos =
-            let destDirName = Path.Combine(srcProjDirInfo.Parent.FullName, input.DestProjName)
-            [ for projPath in ProjectSystem.getAllProjectPaths srcProjDirInfo.FullName do
+
+            let destDirName =
+                if input.RenameFolder then
+                    Path.Combine(srcProjDirInfo.Parent.FullName, input.DestProjName)
+                else srcProjDirInfo.FullName
+
+            // If renaming the folder, check for multiple projects.  Otherwise, just the src proj.
+            let projPathsOnTheMove = 
+                if input.RenameFolder then ProjectSystem.getAllProjectPaths srcProjDirInfo.FullName
+                else [ input.SrcProjFileInfo.FullName]
+
+            [ for projPath in projPathsOnTheMove do
                 let projFileInfo = FileInfo(projPath)
                 let projGuid = 
                     let regex = Regex("<ProjectGuid>(.*?)</ProjectGuid>")
@@ -189,12 +203,15 @@ let main argv =
             File.WriteAllText(slnPath, updatedSlnText, Text.UTF8Encoding(true))
 
 
-        // Better do the actual rename and move!
+        // Better do the actual rename!
         let destProjFilename = sprintf "%s%s" input.DestProjName input.SrcProjFileInfo.Extension 
         let destProjPath = Path.Combine(srcProjDirInfo.FullName, destProjFilename)
         File.Move(input.SrcProjFileInfo.FullName, destProjPath)
-        let destDirPath = Path.Combine(srcProjDirInfo.Parent.FullName, input.DestProjName)
-        Directory.Move(srcProjDirInfo.FullName, destDirPath)
+
+        // And maybe the move.
+        if input.RenameFolder then
+            let destDirPath = Path.Combine(srcProjDirInfo.Parent.FullName, input.DestProjName)
+            Directory.Move(srcProjDirInfo.FullName, destDirPath)
 
         0
 
