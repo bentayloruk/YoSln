@@ -19,10 +19,12 @@ This is a command line tool and is written in F#.  The work is done [here](https
 
 You would do a `moveproj` like this:
 
-`yosln.exe moveproj --projectname src\SuckyMcSuckName\SuckyMcSuckName.csproj --newname SuperRadName`
+`yosln.exe moveproj --proj-name src\SuckyMcSuckName\SuckyMcSuckName.csproj --new-name SuperRadName`
 
 You would end up with:
 
 * `src\SuperRadName\SuperRadName.csproj`.
 * All projects and solutions below `.` (current directory) having their references updated.
+
+See `yosln.exe --help` for other options.
 
